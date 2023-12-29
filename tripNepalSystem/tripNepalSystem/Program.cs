@@ -4,10 +4,11 @@ using tripNepalSystem.DAL;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<TripNepalDbContext>(option =>
-{
-    option.UseSqlServer(builder.Configuration.GetConnectionString("DbString"));
-});
+
+
+builder.Services.AddDbContext<TripNepalDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DbString"))
+    );
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
