@@ -1,83 +1,86 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using tripNepalSystem.DAL;
+using tripNepalSystem.DTO;
+using tripNepalSystem.Model;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace tripNepalSystem.Controllers
 {
-    public class DestinationController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class DestinationController : ControllerBase
     {
-        // GET: DestinationController
-        public ActionResult Index()
+        private readonly TripNepalDbContext _db;
+
+        public DestinationController(TripNepalDbContext _context)
         {
-            return View();
+            _db = _context;
+        }
+        // GET: api/<DestinationController>
+        [HttpGet]
+        public IActionResult Get()
+        {
+            var destinationList = _db.Destinations.Where(x => x.IsActive == true).ToList();
+            return Ok(destinationList);
         }
 
-        // GET: DestinationController/Details/5
-        public ActionResult Details(int id)
+        // GET api/<DestinationController>/5
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
         {
-            return View();
+            var destination = _db.Destinations.Include(y => y.Map).Where(x => x.Id == id).FirstOrDefault();
+
+            return Ok(destination);
         }
 
-        // GET: DestinationController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: DestinationController/Create
+        // POST api/<DestinationController>
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public void Add([FromBody] Destination destinations)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var map = _db.Maps.Where(x => x.Id == destinations.Id).FirstOrDefault();
+
+            Destination newDestination = new Destination();
+            newDestination.Id = destinations.Id;
+            newDestination.Photo = destinations.Photo;
+            newDestination.Name = destinations.Name;
+            newDestination.Description = destinations.Description;
+            newDestination.Features = destinations.Features;
+            newDestination.Map = map;
+            newDestination.OtherDetails = destinations.OtherDetails;
+            newDestination.Rating = destinations.Rating;
+            newDestination.IsActive = true;
+
+            _db.Add(newDestination);
+            _db.SaveChanges();
         }
 
-        // GET: DestinationController/Edit/5
-        public ActionResult Edit(int id)
+        // PUT api/<DestinationController>/5
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody] DestinationDTO destinationDTO)
         {
-            return View();
+            var editDestination = _db.Destinations.Where(x => x.Id == id).FirstOrDefault();
+            var map = _db.Maps.Where(x => x.Id == destinationDTO.Id).FirstOrDefault();
+
+            editDestination.Photo = destinationDTO.Photo;
+            editDestination.Name = destinationDTO.Name;
+            editDestination.Description = destinationDTO.Description;
+            editDestination.Features = destinationDTO.Features;
+            editDestination.Map = map;
+            editDestination.OtherDetails = destinationDTO.OtherDetails;
+            editDestination.Rating = destinationDTO.Rating;
+            editDestination.IsActive = destinationDTO.IsActive;
+            return Ok();
         }
 
-        // POST: DestinationController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        // DELETE api/<DestinationController>/5
+        [HttpDelete("{id}")]
+        public void Delete(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: DestinationController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: DestinationController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var destination = _db.Destinations.Where(x => x.Id == id).FirstOrDefault();
+            destination.IsActive = false;
+            _db.SaveChanges();
         }
     }
 }

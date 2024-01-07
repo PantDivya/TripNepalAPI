@@ -8,7 +8,8 @@ namespace tripNepalSystem.DAL;
         public TripNepalDbContext(DbContextOptions<TripNepalDbContext>options):base(options) 
         {
         }  
-        public DbSet<Destination> Destinations { get; set; }    
+        public DbSet<Destination> Destinations { get; set; }   
+         public DbSet<Map>  Maps { get; set; }
 
     }
 

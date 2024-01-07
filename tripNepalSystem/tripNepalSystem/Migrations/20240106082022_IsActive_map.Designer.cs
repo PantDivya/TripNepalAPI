@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using tripNepalSystem.DAL;
 
@@ -10,9 +11,11 @@ using tripNepalSystem.DAL;
 namespace tripNepalSystem.Migrations
 {
     [DbContext(typeof(TripNepalDbContext))]
-    partial class TripNepalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240106082022_IsActive_map")]
+    partial class IsActive_map
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,9 +39,6 @@ namespace tripNepalSystem.Migrations
                     b.Property<string>("Features")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
 
                     b.Property<int>("MapId")
                         .HasColumnType("int");

@@ -12,6 +12,7 @@
         public string[] OtherDetails {  get; set; }
         public string Rating { get; set; }
        
+        public bool IsActive { get; set; }
 
     }
 
