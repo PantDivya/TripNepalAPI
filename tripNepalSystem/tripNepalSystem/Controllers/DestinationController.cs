@@ -22,7 +22,7 @@ namespace tripNepalSystem.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var destinationList = _db.Destinations.Where(x => x.IsActive == true).ToList();
+            var destinationList = _db.Destinations.Where(x => x.IsActive == true).Include(y => y.Map).ToList();
             return Ok(destinationList);
         }
 
@@ -37,9 +37,9 @@ namespace tripNepalSystem.Controllers
 
         // POST api/<DestinationController>
         [HttpPost]
-        public void Add([FromBody] Destination destinations)
+        public void Add([FromBody] DestinationDTO destinations)
         {
-            var map = _db.Maps.Where(x => x.Id == destinations.Id).FirstOrDefault();
+            var map = _db.Maps.Where(x => x.Id == destinations.Map).FirstOrDefault();
 
             Destination newDestination = new Destination();
             newDestination.Id = destinations.Id;
@@ -61,7 +61,7 @@ namespace tripNepalSystem.Controllers
         public IActionResult Put(int id, [FromBody] DestinationDTO destinationDTO)
         {
             var editDestination = _db.Destinations.Where(x => x.Id == id).FirstOrDefault();
-            var map = _db.Maps.Where(x => x.Id == destinationDTO.Id).FirstOrDefault();
+            var map = _db.Maps.Where(x => x.Id == destinationDTO.Map).FirstOrDefault();
 
             editDestination.Photo = destinationDTO.Photo;
             editDestination.Name = destinationDTO.Name;
@@ -71,7 +71,9 @@ namespace tripNepalSystem.Controllers
             editDestination.OtherDetails = destinationDTO.OtherDetails;
             editDestination.Rating = destinationDTO.Rating;
             editDestination.IsActive = destinationDTO.IsActive;
-            return Ok();
+
+            _db.SaveChanges();
+            return Ok(editDestination);
         }
 
         // DELETE api/<DestinationController>/5
