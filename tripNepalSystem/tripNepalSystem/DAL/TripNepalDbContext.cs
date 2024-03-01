@@ -9,7 +9,6 @@ namespace tripNepalSystem.DAL;
         {
         }  
         public DbSet<Destination> Destinations { get; set; }   
-        public DbSet<Map>  Maps { get; set; }
         public DbSet<User> Users { get; set; }
 
     }

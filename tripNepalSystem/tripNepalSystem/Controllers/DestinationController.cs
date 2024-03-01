@@ -22,7 +22,7 @@ namespace tripNepalSystem.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var destinationList = _db.Destinations.Where(x => x.IsActive == true).Include(y => y.Map).ToList();
+            var destinationList = _db.Destinations.Where(x => x.IsActive == true).ToList();
             return Ok(destinationList);
         }
 
@@ -30,7 +30,7 @@ namespace tripNepalSystem.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var destination = _db.Destinations.Include(y => y.Map).Where(x => x.Id == id).FirstOrDefault();
+            var destination = _db.Destinations.Where(x => x.Id == id).FirstOrDefault();
 
             return Ok(destination);
         }
@@ -39,17 +39,14 @@ namespace tripNepalSystem.Controllers
         [HttpPost]
         public void Add([FromBody] DestinationDTO destinations)
         {
-            var map = _db.Maps.Where(x => x.Id == destinations.Map).FirstOrDefault();
 
             Destination newDestination = new Destination();
             newDestination.Id = destinations.Id;
             newDestination.Photo = destinations.Photo;
             newDestination.Name = destinations.Name;
             newDestination.Description = destinations.Description;
-            newDestination.Features = destinations.Features;
-            newDestination.Map = map;
-            newDestination.OtherDetails = destinations.OtherDetails;
-            newDestination.Rating = destinations.Rating;
+            newDestination.Latitude = destinations.Latitude;
+            newDestination.Longitude = destinations.Longitude;
             newDestination.IsActive = true;
 
             _db.Add(newDestination);
@@ -61,15 +58,12 @@ namespace tripNepalSystem.Controllers
         public IActionResult Put(int id, [FromBody] DestinationDTO destinationDTO)
         {
             var editDestination = _db.Destinations.Where(x => x.Id == id).FirstOrDefault();
-            var map = _db.Maps.Where(x => x.Id == destinationDTO.Map).FirstOrDefault();
 
             editDestination.Photo = destinationDTO.Photo;
             editDestination.Name = destinationDTO.Name;
             editDestination.Description = destinationDTO.Description;
-            editDestination.Features = destinationDTO.Features;
-            editDestination.Map = map;
-            editDestination.OtherDetails = destinationDTO.OtherDetails;
-            editDestination.Rating = destinationDTO.Rating;
+            editDestination.Latitude = destinationDTO.Latitude;
+            editDestination.Longitude = destinationDTO.Longitude;
             editDestination.IsActive = destinationDTO.IsActive;
 
             _db.SaveChanges();
