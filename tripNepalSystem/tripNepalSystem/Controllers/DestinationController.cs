@@ -8,6 +8,7 @@ using tripNepalSystem.Model;
 
 namespace tripNepalSystem.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class DestinationController : ControllerBase

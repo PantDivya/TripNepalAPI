@@ -13,7 +13,6 @@ using tripNepalSystem.Model;
 
 namespace PMS.Controllers
 {
-    [Authorize(AuthenticationSchemes = "Issuer2Scheme")]
     [Route("api/[controller]")]
     [ApiController]
     
@@ -45,7 +44,7 @@ namespace PMS.Controllers
              new Claim(ClaimTypes.Name, UserName),
              new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
          };
-                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration[secret]));
+                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
 
                 var token = new JwtSecurityToken(
                     issuer: _configuration[validIssuer],
