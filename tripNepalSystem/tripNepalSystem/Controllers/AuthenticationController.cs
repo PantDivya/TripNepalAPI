@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,60 +13,55 @@ using tripNepalSystem.Model;
 
 namespace PMS.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Issuer2Scheme")]
     [Route("api/[controller]")]
     [ApiController]
+    
     public class AuthenticationController : ControllerBase
     {
         private readonly TripNepalDbContext _dbContext;
-
-        public AuthenticationController(TripNepalDbContext dbContext)
+        private readonly IConfiguration _configuration;
+        public AuthenticationController(TripNepalDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            _configuration = configuration;
         }
 
-        // POST api/authentication/signup
-        [HttpPost("signup")]
-        public IActionResult SignUp([FromBody] User user)
+        [HttpPost]
+        public IActionResult Post([FromBody] AdminCredentialDTO adminCredentialDTO)
         {
-            if (user == null || string.IsNullOrEmpty(user.UserName) || string.IsNullOrEmpty(user.Password))
+            var UserName = _configuration["AdminCredential:username"];
+            var Password = _configuration["AdminCredential:password"];
+
+            var issuer2 = _configuration.GetSection("JwtSettings:Issuer2");
+            var validIssuer = issuer2["ValidIssuer"];
+            var validAudience = issuer2["ValidAudience"];
+            var secret = issuer2["Secret"];
+
+            if (adminCredentialDTO.UserName == UserName && adminCredentialDTO.Password == Password)
             {
-                return BadRequest("Invalid username or password");
+                var authClaims = new List<Claim>
+         {
+             new Claim(ClaimTypes.Name, UserName),
+             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+         };
+                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration[secret]));
+
+                var token = new JwtSecurityToken(
+                    issuer: _configuration[validIssuer],
+                    audience: _configuration[validAudience],
+                    expires: DateTime.Now.AddHours(3),
+                    claims: authClaims,
+                    signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+                    );
+                return Ok(new
+                {
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    expiration = token.ValidTo
+                });
             }
-
-            if (_dbContext.Users.Any(u => u.UserName == user.UserName))
-            {
-                return Conflict("Username already exists");
-            }
-
-            User newUser = new User();
-            newUser.UserName = user.UserName;
-            newUser.Password = user.Password;
-
-            _dbContext.Add(newUser);
-            _dbContext.SaveChanges();
-
-            return Ok("User created successfully");
+            return Unauthorized();
         }
-
-        // POST api/authentication/login
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] UserCredentialDTO userCredentialDTO)
-        {
-            if (userCredentialDTO == null || string.IsNullOrEmpty(userCredentialDTO.UserName) || string.IsNullOrEmpty(userCredentialDTO.Password))
-            {
-                return BadRequest("Invalid username or password");
-            }
-
-            var user = _dbContext.Users.SingleOrDefault(u => u.UserName == userCredentialDTO.UserName && u.Password == userCredentialDTO.Password);
-
-            if (user == null)
-            {
-                return NotFound("User not found or invalid credentials");
-            }
-
-            return Ok("Login successful");
-        }
-       
     }
 }
 
