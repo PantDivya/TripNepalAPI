@@ -1,1 +1,2 @@
 # tripNepalSystem
+# It is an API with JWT authentication and provide data from database to Frontend. It perform add different tourist destination to database, update the existing tourist destination database and soft delete the destination. It uses ef core for the data mapping. It uses the model and controller to to store data and perform action. For testing postman is used and for database SQL server is used. 
